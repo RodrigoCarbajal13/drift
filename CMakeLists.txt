@@ -15,6 +15,7 @@ option(BUILD_DOC "Build Doxygen documents" ON)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(pinocchio REQUIRED) # T1 kinematics addition (not upstream).
 
 message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
 message("Boost include dir: ${Boost_INCLUDE_DIRS}")
@@ -38,6 +39,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # #################################################
 # Source file for mini cheetah robot:
 file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/*.cpp)
+# Source files for the T1 (not upstream): per-leg Pinocchio-backed kinematics.
+file(GLOB T1_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/t1/*.cpp)
 
 set(LIBRARY_TARGET_NAME ${PROJECT_NAME})
 add_library(${LIBRARY_TARGET_NAME}
@@ -56,11 +59,14 @@ add_library(${LIBRARY_TARGET_NAME}
   ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
   ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
   ${MINI_CHEETAH_KIN_SRC_FILES}
+  ${PROJECT_SOURCE_DIR}/src/kinematics/t1_kinematics.cpp
+  ${T1_KIN_SRC_FILES}
 )
 target_include_directories(${LIBRARY_TARGET_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
 )
+target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC pinocchio::pinocchio_parsers)
 
 # #################################################
 # Build Examples                 #

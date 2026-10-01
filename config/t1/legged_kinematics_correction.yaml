@@ -1,0 +1,19 @@
+# Settings for legged kinematics correction -- Booster T1 (simulation only).
+#
+# Structure follows config/mini_cheetah/legged_kinematics_correction.yaml.
+# Values are unvalidated placeholders (same as Mini Cheetah's own defaults)
+# until the T1's actual joint encoder noise is characterized; contact_std in
+# particular should probably be inflated once this is fed by the learned
+# contact estimator rather than ground truth, since the live teleop
+# evaluation showed ~90-96% per-step accuracy and visible chatter near
+# contact transitions (~1.5-1.8x more estimated transitions than true ones) --
+# see booster-mjlab's logs/contact_estimator/learned_*.png.
+settings:
+  correction_time_threshold: 0.05    # Threshold for time difference between the received velocity message
+                                    # and current time. (sec)
+
+noises:
+  # kinematics_cov = J * encoder_cov_ * J.transpose() + kinematics_prior_cov_
+  encoder_std: 0.0174533 # Standard deviation of the encoder readings, 0.0174533 = 1 deg std dev
+  kinematics_additive_std: 0.05 # 5 cm std Adds to FK covariance.
+  contact_std: 0.1

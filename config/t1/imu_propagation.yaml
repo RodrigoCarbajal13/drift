@@ -1,0 +1,44 @@
+# Settings for IMU propagation model -- Booster T1 (simulation only for now).
+#
+# Values follow config/mini_cheetah/imu_propagation.yaml's structure. Two are
+# T1/sim-specific, not copied blindly:
+#   - rotation_imu2body: the T1 MJCF's "imu" site has no pos/quat override
+#     (src/mjlab_playground/asset_zoo/robots/booster_t1/xmls/t1.xml), so it
+#     sits at the Trunk body's origin with identity orientation -- IMU frame
+#     == body frame, same as Mini Cheetah's config here.
+#   - static_bias_initialization: false, with zero bias priors. This is a
+#     simulated IMU (no real sensor bias to estimate), so there's no reason
+#     to burn init_bias_size samples on it; revisit both once real T1 IMU
+#     logs are available.
+settings:
+  ###################
+  # Filter Settings #
+  ###################
+  static_bias_initialization: false  # Sim IMU has no bias to estimate; see
+                                    # note above. Revisit for real hardware.
+  init_bias_size: 250 # Unused while static_bias_initialization is false.
+  init_bias_using_orientation_est_from_imu: false # Assume the robot starts
+                                                  # horizontally static
+                                                  # (gravity pointing down).
+  enable_imu_bias_update: false
+  use_imu_ori_to_init: false
+
+  ########################
+  # Orientation Settings #
+  ########################
+  # Body frame == IMU site frame (T1 MJCF "imu" site has no offset/rotation
+  # from the Trunk body -- see note above).
+  rotation_imu2body: [1, 0, 0, 0] # [w, x, y, z]
+
+# IMU bias prior: zero, since this is simulated IMU data (no real bias).
+priors:
+  gyroscope_bias: [0, 0, 0]
+  accelerometer_bias: [0, 0, 0]
+
+# IMU noise parameters: Mini Cheetah's defaults, unvalidated for the T1.
+# Revisit once real T1 IMU datasheet/logs are available.
+noises:
+  gyroscope_std: 0.01
+  accelerometer_std: 0.1
+  gyroscope_bias_std: 0.1
+  accelerometer_bias_std: 0.1
