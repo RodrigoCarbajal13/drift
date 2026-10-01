@@ -102,7 +102,12 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   for (int id = 0; id < num_legs; id++) {
     bool has_contact = kinematics_measurement->get_contact(id);
     Eigen::Vector3d pose = kinematics_measurement->get_kin_pos(id);
-    Eigen::Matrix3d J = kinematics_measurement->get_J(id);
+    // get_J() returns a (3 x actuators_per_leg) matrix -- forcing it into a
+    // fixed Matrix3d only happens to work for exactly 3 actuators/leg (Mini
+    // Cheetah's quadruped legs). The T1 has 6 actuators/leg, so this was a
+    // hard crash (Eigen resize assertion) before being widened to Dynamic.
+    // cov below is still exactly 3x3 regardless, since J*J^T always is.
+    Eigen::MatrixXd J = kinematics_measurement->get_J(id);
     Eigen::Matrix3d cov
         = J * (encoder_std_val_ * encoder_std_val_) * J.transpose()
           + kinematics_additive_std_val_ * kinematics_additive_std_val_
