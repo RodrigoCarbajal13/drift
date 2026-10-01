@@ -3,7 +3,11 @@
 # logger paths are left relative since there's no fixed deployment machine
 # yet for the T1.
 logger:
-  enable_pose_logger: true
+  # Off for now -- the sim replay harness (examples/t1_sim_replay.cpp) writes
+  # its own estimated-vs-ground-truth CSV; DRIFT's own pose logger thread
+  # crashed (std::out_of_range in a background thread) the one time this was
+  # left on here, not yet root-caused. Revisit before relying on it.
+  enable_pose_logger: false
   pose_log_file: "log/t1_pose.txt"
   vel_log_file: "log/t1_vel.txt"
   pose_log_rate: 1000 # Hz

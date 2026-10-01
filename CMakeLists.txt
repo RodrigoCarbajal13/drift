@@ -71,10 +71,10 @@ target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC pinocchio::pinocchio_parsers
 # #################################################
 # Build Examples                 #
 # #################################################
-# if(BUILD_EXAMPLES)
-#   message("Building examples...")
-#   add_subdirectory(examples)
-# endif(BUILD_EXAMPLES)
+if(BUILD_EXAMPLES)
+  message("Building examples...")
+  add_subdirectory(examples)
+endif(BUILD_EXAMPLES)
 
 # #################################################
 # Build Tests                  #
