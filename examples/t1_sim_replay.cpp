@@ -172,12 +172,18 @@ int main(int argc, char** argv) {
   }
 
   std::ofstream out(out_path);
-  out << "t,est_pos_x,est_pos_y,est_pos_z,gt_pos_x,gt_pos_y,gt_pos_z\n";
+  out << "t,est_pos_x,est_pos_y,est_pos_z,gt_pos_x,gt_pos_y,gt_pos_z,"
+      << "est_vel_x,est_vel_y,est_vel_z,gt_vel_x,gt_vel_y,gt_vel_z\n";
   auto log_row = [&](size_t i) {
-    const Eigen::Vector3d p = inekf_estimator.get_state().get_position();
+    const RobotState state = inekf_estimator.get_state();
+    const Eigen::Vector3d p = state.get_position();
+    const Eigen::Vector3d v = state.get_velocity();
     out << table.at(i, "t") << "," << p.x() << "," << p.y() << "," << p.z()
         << "," << table.at(i, "base_pos_x") << "," << table.at(i, "base_pos_y")
-        << "," << table.at(i, "base_pos_z") << "\n";
+        << "," << table.at(i, "base_pos_z") << "," << v.x() << "," << v.y()
+        << "," << v.z() << "," << table.at(i, "base_vel_x") << ","
+        << table.at(i, "base_vel_y") << "," << table.at(i, "base_vel_z")
+        << "\n";
   };
   log_row(0);
 
