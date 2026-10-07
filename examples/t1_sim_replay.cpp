@@ -23,6 +23,7 @@
  *    T1_MJCF_PATH=<path to t1.xml> ./t1_sim_replay <input.csv> <output.csv>
  **/
 
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -171,19 +172,30 @@ int main(int argc, char** argv) {
     }
   }
 
+  // Ground-truth yaw from base_quat_{w,x,y,z} (same convention as the
+  // estimated yaw below: atan2 of the standard ZYX heading term).
+  auto gt_yaw = [&](size_t i) {
+    double w = table.at(i, "base_quat_w"), x = table.at(i, "base_quat_x"),
+           y = table.at(i, "base_quat_y"), z = table.at(i, "base_quat_z");
+    return std::atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z));
+  };
+
   std::ofstream out(out_path);
   out << "t,est_pos_x,est_pos_y,est_pos_z,gt_pos_x,gt_pos_y,gt_pos_z,"
-      << "est_vel_x,est_vel_y,est_vel_z,gt_vel_x,gt_vel_y,gt_vel_z\n";
+      << "est_vel_x,est_vel_y,est_vel_z,gt_vel_x,gt_vel_y,gt_vel_z,"
+      << "est_yaw,gt_yaw\n";
   auto log_row = [&](size_t i) {
     const RobotState state = inekf_estimator.get_state();
     const Eigen::Vector3d p = state.get_position();
     const Eigen::Vector3d v = state.get_velocity();
+    const Eigen::Matrix3d R = state.get_rotation();
+    const double est_yaw = std::atan2(R(1, 0), R(0, 0));
     out << table.at(i, "t") << "," << p.x() << "," << p.y() << "," << p.z()
         << "," << table.at(i, "base_pos_x") << "," << table.at(i, "base_pos_y")
         << "," << table.at(i, "base_pos_z") << "," << v.x() << "," << v.y()
         << "," << v.z() << "," << table.at(i, "base_vel_x") << ","
-        << table.at(i, "base_vel_y") << "," << table.at(i, "base_vel_z")
-        << "\n";
+        << table.at(i, "base_vel_y") << "," << table.at(i, "base_vel_z") << ","
+        << est_yaw << "," << gt_yaw(i) << "\n";
   };
   log_row(0);
 
